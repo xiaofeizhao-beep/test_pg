@@ -1,0 +1,6 @@
+{
+  "use": {
+    "headless": true,
+    "channel": "chrome"
+  }
+}

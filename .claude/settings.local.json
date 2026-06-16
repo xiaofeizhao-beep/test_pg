@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(powershell.exe -Command \"node --version; npm --version\")",
-      "Bash(powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command \"Get-ChildItem 'C:\\\\' -Filter 'node.exe' -Recurse -ErrorAction SilentlyContinue -Depth 3 | Select-Object -ExpandProperty FullName\")"
+      "Bash(powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command \"Get-ChildItem 'C:\\\\' -Filter 'node.exe' -Recurse -ErrorAction SilentlyContinue -Depth 3 | Select-Object -ExpandProperty FullName\")",
+      "Bash(python -m py_compile open_portal.py)",
+      "Bash(python -c \"lines = open\\('open_portal.py', 'r', encoding='utf-8'\\).readlines\\(\\); print\\(f'Total lines: {len\\(lines\\)}'\\)\")",
+      "Bash(mkdir -p portal_utils tests .claude/skills/portal-login)",
+      "Bash(pip install *)",
+      "Bash(python -m pip install pytest -q)",
+      "Bash(git add *)",
+      "Bash(git rm *)",
+      "Bash(git reset *)"
     ]
   }
 }
