@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -Command \"node --version; npm --version\")",
+      "Bash(powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command \"Get-ChildItem 'C:\\\\' -Filter 'node.exe' -Recurse -ErrorAction SilentlyContinue -Depth 3 | Select-Object -ExpandProperty FullName\")"
+    ]
+  }
+}

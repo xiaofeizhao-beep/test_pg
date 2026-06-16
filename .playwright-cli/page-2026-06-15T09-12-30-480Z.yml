@@ -1,0 +1,122 @@
+- generic [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e9]:
+      - img "Google" [ref=e11]
+      - generic [ref=e12]: 使用 Google 账号登录
+    - generic [ref=e13]:
+      - generic [ref=e15]:
+        - heading "登录" [level=1] [ref=e16]
+        - paragraph [ref=e17]:
+          - text: 继续前往
+          - button "unitpulse.ai" [ref=e18] [cursor=pointer]
+      - generic [ref=e19]:
+        - generic [ref=e22]:
+          - generic [ref=e27]:
+            - textbox "邮箱或电话号码" [active] [ref=e28]
+            - generic:
+              - generic: 邮箱或电话号码
+          - paragraph [ref=e29]:
+            - link "忘记了邮箱？" [ref=e30] [cursor=pointer]:
+              - /url: /signin/v2/usernamerecovery?app_domain=https://message-agg-dev.unitpulse.ai&client_id=431211171237-j7h1g19c65ju7g7vfftu34rvm5ce5el0.apps.googleusercontent.com&continue=https://accounts.google.com/signin/oauth/legacy/consent?authuser%3Dunknown%26part%3DAJi8hAPB9032FJGS6BSlACSvWS4AERY1FyxWKYeMqRz1N56iW7rIwdgPaY9So5b1Omexg_NNhcq_CrFEKHvmCiWBDApOS5WBVzDSRhHOL7l7rwxaeKruOpeGetPgDEKM3rbeybswxfTenjeF7tfcWbClViVg_ssqKf3JT6AQAJf4W3LRHCxBqWE2aVGpBU1PR4o_-Wzz84GEigz1iJAgoKnfmwkl9bBYpFPrk1pq1nP0jFpzkWY6x9RtbXUwXeXLgtuGTOS_LE1gyKdqwJkGYF_L42U8duKNuL7YYEhguYzlUstYJd5V523wSPG-pxuxZjvgFGNF-YVgHdpzLji28i2njrQoWoAU1NSmEfl7dDyv5RieJXY8fO2mJwiZgXpA2mm1GUWDQasBVGDjPQLXh3Qj4YsrRMHN_MirW41OIvwR-Hg9MsRzC4Hfe1zCqgSJqbYrbIqqKiAnozszvCqH38Pek0qx13bnAcD0LXiyZJ1cFD7Whxo20lI%26flowName%3DGeneralOAuthFlow%26as%3DS-503148713%253A1781514748824840%26client_id%3D431211171237-j7h1g19c65ju7g7vfftu34rvm5ce5el0.apps.googleusercontent.com%23&dsh=S-503148713:1781514748824840&flowName=GeneralOAuthLite&nonce=scRR5cXxotkslQ2M1MUL&o2v=2&opparams=%253F&rart=ANgoxcd1B1LcR1ouvWkaHC0rw_gKUoVUiSCq4IrXP9SoA-oFrDRtBS_7NgQH_SvUM4CWd_6aP1GdMQa5e7k0dR9ljB3u7wRqklDu4FvkCzw6tQGpfK1BfZY&redirect_uri=https://message-agg-dev.unitpulse.ai/oauth/google/callback&response_type=code&scope=openid+email+profile&service=lso&state=DmEz4Z85BBtN4ye3aUD4aHdo9fQUDX
+        - generic [ref=e32]:
+          - button "下一步" [ref=e34]
+          - link "创建账号" [ref=e36] [cursor=pointer]:
+            - /url: /lifecycle/flows/signup?app_domain=https://message-agg-dev.unitpulse.ai&client_id=431211171237-j7h1g19c65ju7g7vfftu34rvm5ce5el0.apps.googleusercontent.com&continue=https://accounts.google.com/signin/oauth/legacy/consent?authuser%3Dunknown%26part%3DAJi8hAPB9032FJGS6BSlACSvWS4AERY1FyxWKYeMqRz1N56iW7rIwdgPaY9So5b1Omexg_NNhcq_CrFEKHvmCiWBDApOS5WBVzDSRhHOL7l7rwxaeKruOpeGetPgDEKM3rbeybswxfTenjeF7tfcWbClViVg_ssqKf3JT6AQAJf4W3LRHCxBqWE2aVGpBU1PR4o_-Wzz84GEigz1iJAgoKnfmwkl9bBYpFPrk1pq1nP0jFpzkWY6x9RtbXUwXeXLgtuGTOS_LE1gyKdqwJkGYF_L42U8duKNuL7YYEhguYzlUstYJd5V523wSPG-pxuxZjvgFGNF-YVgHdpzLji28i2njrQoWoAU1NSmEfl7dDyv5RieJXY8fO2mJwiZgXpA2mm1GUWDQasBVGDjPQLXh3Qj4YsrRMHN_MirW41OIvwR-Hg9MsRzC4Hfe1zCqgSJqbYrbIqqKiAnozszvCqH38Pek0qx13bnAcD0LXiyZJ1cFD7Whxo20lI%26flowName%3DGeneralOAuthFlow%26as%3DS-503148713%253A1781514748824840%26client_id%3D431211171237-j7h1g19c65ju7g7vfftu34rvm5ce5el0.apps.googleusercontent.com%23&dsh=S-503148713:1781514748824840&flowEntry=SignUp&flowName=GlifWebSignIn&nonce=scRR5cXxotkslQ2M1MUL&o2v=2&opparams=%253F&rart=ANgoxcd1B1LcR1ouvWkaHC0rw_gKUoVUiSCq4IrXP9SoA-oFrDRtBS_7NgQH_SvUM4CWd_6aP1GdMQa5e7k0dR9ljB3u7wRqklDu4FvkCzw6tQGpfK1BfZY&redirect_uri=https://message-agg-dev.unitpulse.ai/oauth/google/callback&response_type=code&scope=openid+email+profile&service=lso&signInUrl=https://accounts.google.com/signin/oauth?app_domain%3Dhttps://message-agg-dev.unitpulse.ai%26client_id%3D431211171237-j7h1g19c65ju7g7vfftu34rvm5ce5el0.apps.googleusercontent.com%26continue%3Dhttps://accounts.google.com/signin/oauth/legacy/consent?authuser%253Dunknown%2526part%253DAJi8hAPB9032FJGS6BSlACSvWS4AERY1FyxWKYeMqRz1N56iW7rIwdgPaY9So5b1Omexg_NNhcq_CrFEKHvmCiWBDApOS5WBVzDSRhHOL7l7rwxaeKruOpeGetPgDEKM3rbeybswxfTenjeF7tfcWbClViVg_ssqKf3JT6AQAJf4W3LRHCxBqWE2aVGpBU1PR4o_-Wzz84GEigz1iJAgoKnfmwkl9bBYpFPrk1pq1nP0jFpzkWY6x9RtbXUwXeXLgtuGTOS_LE1gyKdqwJkGYF_L42U8duKNuL7YYEhguYzlUstYJd5V523wSPG-pxuxZjvgFGNF-YVgHdpzLji28i2njrQoWoAU1NSmEfl7dDyv5RieJXY8fO2mJwiZgXpA2mm1GUWDQasBVGDjPQLXh3Qj4YsrRMHN_MirW41OIvwR-Hg9MsRzC4Hfe1zCqgSJqbYrbIqqKiAnozszvCqH38Pek0qx13bnAcD0LXiyZJ1cFD7Whxo20lI%2526flowName%253DGeneralOAuthFlow%2526as%253DS-503148713%25253A1781514748824840%2526client_id%253D431211171237-j7h1g19c65ju7g7vfftu34rvm5ce5el0.apps.googleusercontent.com%2523%26dsh%3DS-503148713:1781514748824840%26flowName%3DGeneralOAuthLite%26nonce%3DscRR5cXxotkslQ2M1MUL%26o2v%3D2%26opparams%3D%25253F%26rart%3DANgoxcd1B1LcR1ouvWkaHC0rw_gKUoVUiSCq4IrXP9SoA-oFrDRtBS_7NgQH_SvUM4CWd_6aP1GdMQa5e7k0dR9ljB3u7wRqklDu4FvkCzw6tQGpfK1BfZY%26redirect_uri%3Dhttps://message-agg-dev.unitpulse.ai/oauth/google/callback%26response_type%3Dcode%26scope%3Dopenid%2Bemail%2Bprofile%26service%3Dlso%26state%3DDmEz4Z85BBtN4ye3aUD4aHdo9fQUDX&state=DmEz4Z85BBtN4ye3aUD4aHdo9fQUDX
+  - contentinfo [ref=e37]:
+    - combobox [ref=e40] [cursor=pointer]:
+      - option "繁體中文"
+      - option "简体中文" [selected]
+      - option "日本語"
+      - option "中文（香港）"
+      - option "Afrikaans"
+      - option "azərbaycan"
+      - option "bosanski"
+      - option "català"
+      - option "Čeština"
+      - option "Cymraeg"
+      - option "Dansk"
+      - option "Deutsch"
+      - option "eesti"
+      - option "English (United Kingdom)"
+      - option "English (United States)"
+      - option "Español (España)"
+      - option "Español (Latinoamérica)"
+      - option "euskara"
+      - option "Filipino"
+      - option "Français (Canada)"
+      - option "Français (France)"
+      - option "Gaeilge"
+      - option "galego"
+      - option "Hrvatski"
+      - option "Indonesia"
+      - option "isiZulu"
+      - option "íslenska"
+      - option "Italiano"
+      - option "Kiswahili"
+      - option "latviešu"
+      - option "lietuvių"
+      - option "magyar"
+      - option "Melayu"
+      - option "Nederlands"
+      - option "norsk"
+      - option "o‘zbek"
+      - option "polski"
+      - option "Português (Brasil)"
+      - option "Português (Portugal)"
+      - option "română"
+      - option "shqip"
+      - option "Slovenčina"
+      - option "slovenščina"
+      - option "srpski (latinica)"
+      - option "Suomi"
+      - option "Svenska"
+      - option "Tiếng Việt"
+      - option "Türkçe"
+      - option "Ελληνικά"
+      - option "беларуская"
+      - option "български"
+      - option "кыргызча"
+      - option "қазақ тілі"
+      - option "македонски"
+      - option "монгол"
+      - option "Русский"
+      - option "српски (ћирилица)"
+      - option "Українська"
+      - option "ქართული"
+      - option "հայերեն"
+      - option "‫עברית‬‎"
+      - option "‫اردو‬‎"
+      - option "‫العربية‬‎"
+      - option "‫فارسی‬‎"
+      - option "አማርኛ"
+      - option "नेपाली"
+      - option "मराठी"
+      - option "हिन्दी"
+      - option "অসমীয়া"
+      - option "বাংলা"
+      - option "ਪੰਜਾਬੀ"
+      - option "ગુજરાતી"
+      - option "ଓଡ଼ିଆ"
+      - option "தமிழ்"
+      - option "తెలుగు"
+      - option "ಕನ್ನಡ"
+      - option "മലയാളം"
+      - option "සිංහල"
+      - option "ไทย"
+      - option "ລາວ"
+      - option "မြန်မာ"
+      - option "ខ្មែរ"
+      - option "한국어"
+    - list [ref=e41]:
+      - listitem [ref=e42]:
+        - link "打开 Google 账号帮助中心（外部链接，在新窗口中打开）" [ref=e43] [cursor=pointer]:
+          - /url: https://support.google.com/accounts?hl=zh-CN&p=account_iph
+          - text: 帮助
+      - listitem [ref=e44]:
+        - link "《隐私权政策》（外部链接，在新窗口中打开）" [ref=e45] [cursor=pointer]:
+          - /url: https://accounts.google.com/TOS?loc=CN&hl=zh-CN&privacy=true
+          - text: 隐私权
+      - listitem [ref=e46]:
+        - link "《Google 服务条款》（外部链接，在新窗口中打开）" [ref=e47] [cursor=pointer]:
+          - /url: https://accounts.google.com/TOS?loc=CN&hl=zh-CN
+          - text: 条款

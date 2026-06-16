@@ -1,0 +1,51 @@
+{
+  "cookies": [
+    {
+      "name": "cf_clearance",
+      "value": "m.gmpVQh_k9qT0vcdx2_tESqf_fOaaqQ7WG6bPFLvyk-1781514741-1.2.1.1-wtZLvX7gwPjnJt1T5dZICWdxzpN_Bx8Lbgvixvb94YNNYs3eUWAdZZADySrI_2JYw1d23jghpJYulqPDFkfak1Nh6B3yrxXqZVyR7VywVty7fJ5RUy8p5G3LfkDyWmvzfYZFFcXMAOg4ifo4t_rFPlcZnRi2GW3mYsY9uxjjBjPYKx9.WKikH28f1pVYF_Pall3IIicXA8TnaxadriJ1sZEp3.yV3GtuBe0wbc5_wzW1v7gt7ZoSNvk0Bbp68EUKWwjSjSWX87MKlfOclWOoDTNvSxZkWXrKIWIznvFHNFh_NF2O1_PrKCnPTl8WRVe8EvO_ujO8uyWBBtiVEt1lbQ",
+      "domain": ".unitpulse.ai",
+      "path": "/",
+      "expires": 1813050741.678972,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://unitpulse.ai",
+      "_crHasCrossSiteAncestor": false
+    },
+    {
+      "name": "session",
+      "value": ".eJx9UW1LIzEQ_i8B94t21-zLbS0solS5D-eBQkH8ssTsNI1mMyGZFD3xv1-6pUfhREiYgZk8L3k-WB9IEPQKURnol-PNn_pp3lxf0-_6HSqxWtbi54AX6_vV8pEtPtggSOyqRSuBLViQDw-NfHxDeg3mvrzjd6tf7Ix5GLQHSX30Om1tiFxYFMUIIQgFM6HUbIBtHq0mF02AXOgCRaRNsVdSSGHMs5CvCSt6cwQhpMRoKeT7xVziWOD-bVlsy2LXXHoIDm2Ant4ddBIHyKTRYKnXQ1dXvOSct7ys2tlLu-GKX8gfzUtsVbtdrylWtd-OjYQGzHkunDtwxQBeoqWEs6PNjk12k76T6uqkvE3nO6NpPMlNdY-bmoPdLEhMitO1ejiFUWhz6jyutYFsSqr7PqJsyqX7MpXPMwZvji14O-cNn1f1POf8vK7bMk0mRX2iGqKk9N3aBq02xA6Tf14Jj8Jw6EmY_6M0qLS9ZJ9_Ab010z4.ai_B_A.FozOF6LGE61P8w3RbmbOe_r_z3U",
+      "domain": "message-agg-dev.unitpulse.ai",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Host-GAPS",
+      "value": "1:i3vv4C5TdLFmqDqaqc_UKBnFvrA1Gg:YyG-xS1drvsLOxF5",
+      "domain": "accounts.google.com",
+      "path": "/",
+      "expires": 1816074748.786047,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://portal-dev.unitpulse.ai",
+      "localStorage": [
+        {
+          "name": "auth-storage",
+          "value": "{\"state\":{\"token\":null,\"appToken\":null,\"rentyToken\":null,\"userId\":null,\"email\":null,\"activeOrgId\":null,\"memberships\":[],\"orgStatus\":null,\"marketingRequestStatus\":null,\"leasingRequestStatus\":null,\"onboardStatus\":null,\"activeAccessVersion\":null,\"roleTemplate\":null,\"resourcePermissions\":{}},\"version\":0}"
+        },
+        {
+          "name": "customerTabs",
+          "value": "[]"
+        }
+      ]
+    }
+  ]
+}
