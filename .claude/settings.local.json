@@ -10,7 +10,9 @@
       "Bash(python -m pip install pytest -q)",
       "Bash(git add *)",
       "Bash(git rm *)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(where gh *)",
+      "Read(//c//**)"
     ]
   }
 }
