@@ -1,1 +1,39 @@
+# Environment
+.env
+.env.local
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Playwright Test 产物
+tests/report/
+test-results/
+
+# Playwright CLI logs & snapshots
+.playwright-cli/
+
+# Screenshots
+screenshots/*.png
+
+# Python (legacy)
 __pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Sensitive data
+auth_state.json
+
+# Server database
+server/data/
+.claude/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,202 @@
+<%- include('partials/header', { title: '历史记录' }) %>
+<div class="container">
+  <h1>历史记录</h1>
+  <div class="card">
+    <table class="table" id="historyTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>时间</th>
+          <th>状态</th>
+          <th>总数</th>
+          <th>通过</th>
+          <th>失败</th>
+          <th>耗时</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="historyBody">
+        <tr><td colspan="8" class="loading">加载中...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detailModal" style="display:none">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3>运行详情</h3>
+      <div class="modal-tabs" id="detailTabs">
+        <button class="tab tab-active" data-tab="results" onclick="switchTab('results')">用例结果</button>
+        <button class="tab" data-tab="screenshots" onclick="switchTab('screenshots')">截图</button>
+        <button class="tab" data-tab="logs" onclick="switchTab('logs')">运行日志</button>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('detailModal').style.display='none'">&times;</button>
+    </div>
+    <div class="modal-body" id="detailBody">
+      <div id="tab-results" class="tab-panel"></div>
+      <div id="tab-screenshots" class="tab-panel" style="display:none"></div>
+      <div id="tab-logs" class="tab-panel" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var detailData = null;
+
+function loadHistory() {
+  fetch('/api/history')
+    .then(function(r) { return r.json(); })
+    .then(function(runs) {
+      var tbody = document.getElementById('historyBody');
+      if (runs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">暂无运行记录</td></tr>';
+        return;
+      }
+      tbody.innerHTML = runs.map(function(r) {
+        var statusClass = r.status === 'passed' ? 'status-pass' : (r.status === 'failed' ? 'status-fail' : 'status-running');
+        var duration = r.duration_ms ? (r.duration_ms / 1000).toFixed(1) + 's' : '-';
+        var label = r.status === 'passed' ? '通过' : (r.status === 'failed' ? '失败' : '运行中');
+        return '<tr>' +
+          '<td>' + r.id + '</td>' +
+          '<td>' + new Date(r.started_at).toLocaleString() + '</td>' +
+          '<td><span class="status-badge ' + statusClass + '">' + label + '</span></td>' +
+          '<td>' + r.total + '</td>' +
+          '<td class="text-pass">' + r.passed + '</td>' +
+          '<td class="text-fail">' + r.failed + '</td>' +
+          '<td>' + duration + '</td>' +
+          '<td><button class="btn btn-sm" onclick="viewDetail(' + r.id + ')">详情</button> <button class="btn btn-sm btn-danger" onclick="deleteRun(' + r.id + ')">删除</button></td>' +
+        '</tr>';
+      }).join('');
+    });
+}
+
+function switchTab(tab) {
+  // 更新 tab 按钮状态
+  document.querySelectorAll('#detailTabs .tab').forEach(function(t) {
+    t.classList.toggle('tab-active', t.dataset.tab === tab);
+  });
+  // 切换面板
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.style.display = 'none'; });
+  document.getElementById('tab-' + tab).style.display = 'block';
+
+  // 渲染对应的内容
+  if (tab === 'results') renderResults();
+  else if (tab === 'screenshots') renderScreenshots();
+  else if (tab === 'logs') renderLogs();
+}
+
+function viewDetail(runId) {
+  var modal = document.getElementById('detailModal');
+  modal.style.display = 'flex';
+  // 仅清空各面板内容，保留 DOM 结构
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.innerHTML = '<p class="loading">加载中...</p>'; });
+
+  fetch('/api/history/' + runId)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      detailData = data;
+      switchTab('results');
+    });
+}
+
+function renderResults() {
+  if (!detailData) return;
+  var d = detailData;
+  var html = '<div class="detail-summary">';
+  html += '<p><strong>运行 ID:</strong> ' + d.run.id + '</p>';
+  html += '<p><strong>时间:</strong> ' + new Date(d.run.started_at).toLocaleString() + '</p>';
+  html += '<p><strong>状态:</strong> ' + d.run.status + '</p>';
+  html += '<p><strong>总计:</strong> ' + d.run.total + ' | 通过: <span class="text-pass">' + d.run.passed + '</span> | 失败: <span class="text-fail">' + d.run.failed + '</span></p>';
+  html += '</div>';
+
+  if (d.results && d.results.length > 0) {
+    html += '<table class="table"><thead><tr><th>文件</th><th>用例</th><th>状态</th><th>耗时</th></tr></thead><tbody>';
+    d.results.forEach(function(r) {
+      var st = r.status === 'passed' ? 'text-pass' : 'text-fail';
+      html += '<tr><td>' + r.file_path + '</td><td>' + r.test_name + '</td>';
+      html += '<td class="' + st + '">' + r.status + '</td>';
+      html += '<td>' + (r.duration_ms ? (r.duration_ms / 1000).toFixed(2) + 's' : '-') + '</td></tr>';
+      if (r.error_message) {
+        html += '<tr class="error-row"><td colspan="4"><strong>错误:</strong> ' + escHtml(r.error_message) + '</td></tr>';
+      }
+      if (r.error_stack) {
+        html += '<tr class="error-row"><td colspan="4"><pre class="error-msg">' + escHtml(r.error_stack) + '</pre></td></tr>';
+      }
+    });
+    html += '</tbody></table>';
+  } else {
+    html += '<p class="empty">暂无用例结果</p>';
+  }
+
+  // 截图数量提示
+  if (d.screenshots && d.screenshots.length > 0) {
+    html += '<p style="margin-top:12px;color:#888;">📷 共 ' + d.screenshots.length + ' 张截图（切换到截图标签查看）</p>';
+  }
+
+  document.getElementById('tab-results').innerHTML = html;
+}
+
+function renderScreenshots() {
+  if (!detailData) return;
+  var shots = detailData.screenshots || [];
+  if (shots.length === 0) {
+    document.getElementById('tab-screenshots').innerHTML = '<p class="empty">暂无截图</p>';
+    return;
+  }
+  var html = '<div class="screenshot-grid">';
+  // 按测试结果分组显示
+  var currentResult = null;
+  shots.forEach(function(s) {
+    // 确定截图相对于项目根的 URL
+    var relPath = s.file_path.replace(/\\/g, '/');
+    // 尝试多种可能的路径
+    var imgSrc = '/screenshot?path=' + encodeURIComponent(s.file_path);
+    var label = s.step_name || '截图';
+    html += '<div class="screenshot-card">';
+    html += '<div class="screenshot-label">' + escHtml(label) + '</div>';
+    html += '<a href="' + imgSrc + '" target="_blank"><img src="' + imgSrc + '" class="screenshot-thumb" alt="' + escHtml(label) + '"></a>';
+    html += '</div>';
+  });
+  html += '</div>';
+  document.getElementById('tab-screenshots').innerHTML = html;
+}
+
+function renderLogs() {
+  if (!detailData) return;
+  var logs = detailData.logs || [];
+  if (logs.length === 0) {
+    document.getElementById('tab-logs').innerHTML = '<p class="empty">暂无日志</p>';
+    return;
+  }
+  var html = '<div class="log-terminal">';
+  logs.forEach(function(l) {
+    var cls = l.stream === 'stderr' ? 'log-error' : '';
+    html += '<div class="log-line ' + cls + '">' + escHtml(l.text) + '</div>';
+  });
+  html += '</div>';
+  document.getElementById('tab-logs').innerHTML = html;
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function deleteRun(runId) {
+  if (!confirm('确定删除运行记录 #' + runId + '？\n关联的截图文件和日志将一并删除。')) return;
+  fetch('/api/history/' + runId + '/delete', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success) {
+        loadHistory();
+      } else {
+        alert('删除失败: ' + (data.error || '未知错误'));
+      }
+    });
+}
+
+loadHistory();
+</script>
+<%- include('partials/footer') %>

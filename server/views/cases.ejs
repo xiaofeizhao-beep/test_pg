@@ -1,0 +1,118 @@
+<%- include('partials/header', { title: '测试用例' }) %>
+<div class="container">
+  <h1>测试用例</h1>
+
+  <div class="toolbar">
+    <button class="btn btn-primary" id="runBtn" disabled>运行选中</button>
+    <button class="btn btn-danger" id="stopBtn" style="display:none">停止</button>
+    <span id="runStatus" class="run-status"></span>
+  </div>
+
+  <div id="caseList" class="card">
+    <p class="loading">加载中...</p>
+  </div>
+
+  <!-- 实时终端输出 -->
+  <div class="card" id="outputCard" style="display:none">
+    <h2>运行输出</h2>
+    <pre id="outputLog" class="terminal"></pre>
+  </div>
+</div>
+
+<script>
+var currentRunId = null;
+var eventSource = null;
+
+function loadCases() {
+  fetch('/api/cases')
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+      var html = '';
+      var modules = {};
+
+      files.forEach(function(f) {
+        if (!modules[f.module]) modules[f.module] = [];
+        modules[f.module].push(f);
+      });
+
+      Object.keys(modules).sort().forEach(function(mod) {
+        html += '<div class="module-group"><h3 class="module-title">' + mod + '</h3>';
+        modules[mod].forEach(function(f) {
+          html += '<label class="case-item">' +
+            '<input type="checkbox" class="case-checkbox" value="' + f.filePath + '"> ' +
+            '<span>' + f.fileName + '</span></label>';
+        });
+        html += '</div>';
+      });
+
+      document.getElementById('caseList').innerHTML = html || '<p class="empty">暂无测试用例</p>';
+      document.querySelectorAll('.case-checkbox').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+          document.getElementById('runBtn').disabled = document.querySelectorAll('.case-checkbox:checked').length === 0;
+        });
+      });
+    });
+}
+
+function appendLog(text) {
+  var log = document.getElementById('outputLog');
+  log.textContent += text + '\n';
+  log.scrollTop = log.scrollHeight;
+}
+
+document.getElementById('runBtn').addEventListener('click', function() {
+  var checked = document.querySelectorAll('.case-checkbox:checked');
+  var files = Array.from(checked).map(function(cb) { return cb.value; });
+  if (files.length === 0) return;
+
+  document.getElementById('runBtn').style.display = 'none';
+  document.getElementById('stopBtn').style.display = 'inline-block';
+  document.getElementById('outputCard').style.display = 'block';
+  document.getElementById('outputLog').textContent = '';
+  document.getElementById('runStatus').textContent = '运行中...';
+  document.getElementById('runStatus').className = 'run-status running';
+
+  fetch('/api/cases/runs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ files: files }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    currentRunId = data.runId;
+
+    eventSource = new EventSource('/api/cases/runs/' + currentRunId + '/stream');
+    eventSource.onmessage = function(ev) {
+      var msg = JSON.parse(ev.data);
+      if (msg.type === 'stdout' || msg.type === 'stderr') {
+        appendLog(msg.data);
+      } else if (msg.type === 'done') {
+        appendLog('--- 运行完成 ---');
+        appendLog('状态: ' + msg.data.status + ' | 总计: ' + msg.data.total + ' 通过: ' + msg.data.passed + ' 失败: ' + msg.data.failed);
+        document.getElementById('runStatus').textContent = msg.data.status === 'passed' ? '✓ 通过' : '✗ 失败';
+        document.getElementById('runStatus').className = 'run-status ' + msg.data.status;
+        document.getElementById('runBtn').style.display = 'inline-block';
+        document.getElementById('stopBtn').style.display = 'none';
+        eventSource.close();
+        eventSource = null;
+      } else if (msg.type === 'error') {
+        appendLog('[错误] ' + msg.data);
+      }
+    };
+  });
+});
+
+document.getElementById('stopBtn').addEventListener('click', function() {
+  if (currentRunId) {
+    fetch('/api/cases/runs/' + currentRunId + '/stop', { method: 'POST' });
+    if (eventSource) { eventSource.close(); eventSource = null; }
+    document.getElementById('runStatus').textContent = '已停止';
+    document.getElementById('runBtn').style.display = 'inline-block';
+    document.getElementById('stopBtn').style.display = 'none';
+  }
+});
+
+// 页面加载后自动列出用例
+loadCases();
+</script>
+<%- include('partials/footer') %>

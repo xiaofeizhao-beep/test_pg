@@ -1,0 +1,46 @@
+<%- include('partials/header', { title: '仪表盘' }) %>
+<div class="container">
+  <h1>仪表盘</h1>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-label">总运行次数</div><div class="stat-value" id="statRuns">-</div></div>
+    <div class="stat-card"><div class="stat-label">累计测试数</div><div class="stat-value" id="statTests">-</div></div>
+    <div class="stat-card stat-pass"><div class="stat-label">通过</div><div class="stat-value" id="statPassed">-</div></div>
+    <div class="stat-card stat-fail"><div class="stat-label">失败</div><div class="stat-value" id="statFailed">-</div></div>
+  </div>
+
+  <div class="card">
+    <h2>最近 30 天趋势</h2>
+    <canvas id="trendChart" height="100"></canvas>
+  </div>
+</div>
+
+<script>
+fetch('/api/stats')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('statRuns').textContent = data.stats.totalRuns;
+    document.getElementById('statTests').textContent = data.stats.totalTests;
+    document.getElementById('statPassed').textContent = data.stats.totalPassed;
+    document.getElementById('statFailed').textContent = data.stats.totalFailed;
+
+    if (data.recent && data.recent.length > 0) {
+      var ctx = document.getElementById('trendChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.recent.map(function(r) { return new Date(r.started_at).toLocaleDateString(); }),
+          datasets: [
+            { label: '通过', data: data.recent.map(function(r) { return r.passed; }), backgroundColor: '#22c55e' },
+            { label: '失败', data: data.recent.map(function(r) { return r.failed; }), backgroundColor: '#ef4444' },
+          ],
+        },
+        options: {
+          responsive: true,
+          scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+        },
+      });
+    }
+  });
+</script>
+<%- include('partials/footer') %>

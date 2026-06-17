@@ -12,7 +12,10 @@
       "Bash(git rm *)",
       "Bash(git reset *)",
       "Bash(where gh *)",
-      "Read(//c//**)"
+      "Read(//c//**)",
+      "Bash(git commit *)",
+      "Bash(curl -s http://localhost:3000/api/history)",
+      "Bash(curl -s http://localhost:3000/api/history/4)"
     ]
   }
 }

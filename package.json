@@ -1,0 +1,26 @@
+{
+  "name": "unitpulse-portal-tests",
+  "version": "1.0.0",
+  "description": "Unitpulse Portal Playwright Test 自动化测试项目",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report tests/report",
+    "test:login": "playwright test tests/cases/login/",
+    "test:chrome": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "server": "node server/app.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1"
+  }
+}
