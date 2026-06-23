@@ -1,0 +1,185 @@
+<%- include('partials/header', { title: '录制生成' }) %>
+<div class="container">
+  <h1>🎬 录制 & 生成 Python 测试脚本</h1>
+
+  <!-- 录制控制区 -->
+  <div class="card">
+    <h2>开始录制</h2>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="recordUrl" placeholder="输入目标 URL" value="https://website-dev.unitpulse.ai" style="flex:1;min-width:300px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+      <input type="text" id="outputName" placeholder="输出文件名 (如 test_xxx.py)" style="width:220px;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+      <button class="btn btn-primary" id="startRecordBtn" style="white-space:nowrap;">🎙️ 开始录制</button>
+      <button class="btn btn-danger" id="stopRecordBtn" style="display:none;white-space:nowrap;">⏹ 停止录制</button>
+    </div>
+    <div id="recordStatus" style="margin-top:8px;font-size:13px;color:#888;"></div>
+  </div>
+
+  <!-- 代码预览区 -->
+  <div class="card" id="codeCard" style="display:none;">
+    <div class="toolbar">
+      <h2 style="margin:0;">生成的代码</h2>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-sm" id="postprocessBtn">🔧 后处理</button>
+        <select id="saveModule" style="padding:4px 8px;border-radius:4px;border:1px solid #ddd;">
+          <option value="">选择模块...</option>
+          <option value="aichat">aichat</option>
+          <option value="login">login</option>
+          <option value="lesaing">lesaing</option>
+          <option value="generated">generated</option>
+        </select>
+        <button class="btn btn-sm btn-primary" id="saveBtn">💾 保存</button>
+      </div>
+    </div>
+    <pre id="codePreview" style="background:#1a1a2e;color:#e0e0e0;padding:16px;border-radius:6px;max-height:500px;overflow:auto;font-size:13px;font-family:'Fira Code',monospace;white-space:pre-wrap;">等待录制完成...</pre>
+  </div>
+
+  <!-- 录制历史 -->
+  <div class="card">
+    <h2>录制会话</h2>
+    <div id="sessionList">
+      <p class="loading">加载中...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+var currentSessionId = null;
+var refreshTimer = null;
+
+function startRecording() {
+  var url = document.getElementById('recordUrl').value.trim();
+  if (!url) { alert('请输入目标 URL'); return; }
+
+  var outputName = document.getElementById('outputName').value.trim();
+  var body = { url: url };
+  if (outputName) body.outputPath = outputName;
+
+  fetch('/api/codegen/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.error) { alert(data.error); return; }
+    currentSessionId = data.sessionId;
+    document.getElementById('recordStatus').innerHTML = '<span style="color:#22c55e;">● 录制中 — 请在打开的浏览器中操作，操作完成后关闭浏览器或点击停止</span>';
+    document.getElementById('startRecordBtn').style.display = 'none';
+    document.getElementById('stopRecordBtn').style.display = 'inline-block';
+    document.getElementById('codeCard').style.display = '';
+
+    // 开始轮询状态
+    refreshTimer = setInterval(refreshStatus, 2000);
+  });
+}
+
+function stopRecording() {
+  if (!currentSessionId) return;
+  fetch('/api/codegen/' + currentSessionId + '/stop', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function() {
+      if (refreshTimer) clearInterval(refreshTimer);
+      document.getElementById('recordStatus').innerHTML = '<span style="color:#888;">⏸ 录制已停止</span>';
+      document.getElementById('startRecordBtn').style.display = 'inline-block';
+      document.getElementById('stopRecordBtn').style.display = 'none';
+      refreshStatus();
+      loadSessions();
+    });
+}
+
+function refreshStatus() {
+  if (!currentSessionId) return;
+  fetch('/api/codegen/' + currentSessionId + '/status')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.active) {
+        if (refreshTimer) clearInterval(refreshTimer);
+        document.getElementById('recordStatus').innerHTML = '<span style="color:#888;">✓ 录制完成 (进程已退出)</span>';
+        document.getElementById('startRecordBtn').style.display = 'inline-block';
+        document.getElementById('stopRecordBtn').style.display = 'none';
+        loadCode();
+        loadSessions();
+      } else {
+        document.getElementById('recordStatus').innerHTML = '<span style="color:#22c55e;">● 录制中... (' + data.url + ')</span>';
+      }
+    });
+}
+
+function loadCode() {
+  if (!currentSessionId) return;
+  fetch('/api/codegen/' + currentSessionId + '/code')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var code = data.code || data.error || '(空)';
+      if (data.note) code = '// ' + data.note + '\n' + code;
+      document.getElementById('codePreview').textContent = code;
+    });
+}
+
+function postProcess() {
+  if (!currentSessionId) return;
+  document.getElementById('postprocessBtn').disabled = true;
+  document.getElementById('postprocessBtn').textContent = '处理中...';
+  fetch('/api/codegen/' + currentSessionId + '/postprocess', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      document.getElementById('postprocessBtn').disabled = false;
+      document.getElementById('postprocessBtn').textContent = '🔧 后处理';
+      if (data.success) {
+        alert('后处理完成!');
+      } else {
+        alert('后处理失败: ' + (data.error || '未知错误') + '\n\n' + (data.output || ''));
+      }
+      loadCode();
+    });
+}
+
+function saveCode() {
+  if (!currentSessionId) return;
+  var moduleName = document.getElementById('saveModule').value;
+  if (!moduleName) { alert('请选择保存模块'); return; }
+  fetch('/api/codegen/' + currentSessionId + '/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ moduleName: moduleName }),
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      alert('已保存到: ' + data.savedTo);
+    } else {
+      alert('保存失败: ' + data.error);
+    }
+  });
+}
+
+function loadSessions() {
+  fetch('/api/codegen/sessions')
+    .then(function(r) { return r.json(); })
+    .then(function(sessions) {
+      var html = '';
+      if (sessions.length === 0) {
+        html = '<p class="loading">暂无录制会话</p>';
+      } else {
+        sessions.reverse().forEach(function(s) {
+          var statusIcon = s.active ? '🟢' : '⚪';
+          var statusText = s.active ? '录制中' : '已完成';
+          html += '<div class="comp-row" style="padding:8px 0;">' +
+            '<span class="comp-label" style="min-width:200px;">' + statusIcon + ' ' + s.id.substring(0, 30) + '</span>' +
+            '<span style="flex:1;font-size:13px;color:#555;">' + s.url + '</span>' +
+            '<span style="font-size:12px;color:#888;">' + statusText + ' | ' + new Date(s.startTime).toLocaleTimeString() + '</span>' +
+            '</div>';
+        });
+      }
+      document.getElementById('sessionList').innerHTML = html;
+    });
+}
+
+document.getElementById('startRecordBtn').addEventListener('click', startRecording);
+document.getElementById('stopRecordBtn').addEventListener('click', stopRecording);
+document.getElementById('postprocessBtn').addEventListener('click', postProcess);
+document.getElementById('saveBtn').addEventListener('click', saveCode);
+
+loadSessions();
+</script>
+<%- include('partials/footer') %>

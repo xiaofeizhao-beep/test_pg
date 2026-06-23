@@ -13,7 +13,13 @@
     "test:chrome": "playwright test --project=chromium",
     "test:firefox": "playwright test --project=firefox",
     "test:webkit": "playwright test --project=webkit",
-    "server": "node server/app.js"
+    "clean": "node -e \"var fs=require('fs'),p=require('path'),d=p.join('tests','report');['screenshots','artifacts','html'].forEach(function(n){var dp=p.join(d,n);if(fs.existsSync(dp))fs.readdirSync(dp).forEach(function(f){fs.rmSync(p.join(dp,f),{recursive:true,force:true})})});['results.json'].forEach(function(f){var fp=p.join(d,f);if(fs.existsSync(fp))fs.unlinkSync(fp)});console.log('🧹 日志和产物已清除')\"",
+    "server": "node server/app.js",
+    "test:pytest": "pytest tests/pytest/cases/ -v",
+    "test:pytest:headed": "pytest tests/pytest/cases/ -v --headed",
+    "test:pytest:aichat": "pytest tests/pytest/cases/aichat/ -v",
+    "test:pytest:portal": "pytest tests/pytest/cases/ -v -m portal",
+    "test:all": "npx playwright test tests/cases/ --project=chromium && pytest tests/pytest/cases/ -v"
   },
   "devDependencies": {
     "@playwright/test": "^1.45.0"

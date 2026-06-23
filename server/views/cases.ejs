@@ -3,6 +3,11 @@
   <h1>测试用例</h1>
 
   <div class="toolbar">
+    <select id="langFilter" style="padding:6px 10px;border-radius:6px;border:1px solid #ddd;">
+      <option value="">全部语言</option>
+      <option value="js">JavaScript</option>
+      <option value="py">Python</option>
+    </select>
     <button class="btn btn-primary" id="runBtn" disabled>运行选中</button>
     <button class="btn btn-danger" id="stopBtn" style="display:none">停止</button>
     <span id="runStatus" class="run-status"></span>
@@ -22,37 +27,49 @@
 <script>
 var currentRunId = null;
 var eventSource = null;
+var allFiles = [];
 
 function loadCases() {
   fetch('/api/cases')
     .then(function(r) { return r.json(); })
     .then(function(files) {
-      var html = '';
-      var modules = {};
-
-      files.forEach(function(f) {
-        if (!modules[f.module]) modules[f.module] = [];
-        modules[f.module].push(f);
-      });
-
-      Object.keys(modules).sort().forEach(function(mod) {
-        html += '<div class="module-group"><h3 class="module-title">' + mod + '</h3>';
-        modules[mod].forEach(function(f) {
-          html += '<label class="case-item">' +
-            '<input type="checkbox" class="case-checkbox" value="' + f.filePath + '"> ' +
-            '<span>' + f.fileName + '</span></label>';
-        });
-        html += '</div>';
-      });
-
-      document.getElementById('caseList').innerHTML = html || '<p class="empty">暂无测试用例</p>';
-      document.querySelectorAll('.case-checkbox').forEach(function(cb) {
-        cb.addEventListener('change', function() {
-          document.getElementById('runBtn').disabled = document.querySelectorAll('.case-checkbox:checked').length === 0;
-        });
-      });
+      allFiles = files;
+      renderCases();
     });
 }
+
+function renderCases() {
+  var lang = document.getElementById('langFilter').value;
+  var filtered = lang ? allFiles.filter(function(f) { return f.language === lang; }) : allFiles;
+
+  var html = '';
+  var modules = {};
+
+  filtered.forEach(function(f) {
+    if (!modules[f.module]) modules[f.module] = [];
+    modules[f.module].push(f);
+  });
+
+  Object.keys(modules).sort().forEach(function(mod) {
+    html += '<div class="module-group"><h3 class="module-title">' + escHtml(mod) + '</h3>';
+    modules[mod].forEach(function(f) {
+      var badge = f.language === 'py' ? ' <span class="lang-badge py-badge">Python</span>' : ' <span class="lang-badge js-badge">JS</span>';
+      html += '<label class="case-item">' +
+        '<input type="checkbox" class="case-checkbox" value="' + escHtml(f.filePath) + '" data-lang="' + f.language + '"> ' +
+        '<span>' + escHtml(f.fileName) + badge + '</span></label>';
+    });
+    html += '</div>';
+  });
+
+  document.getElementById('caseList').innerHTML = html || '<p class="empty">暂无测试用例</p>';
+  document.querySelectorAll('.case-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', function() {
+      document.getElementById('runBtn').disabled = document.querySelectorAll('.case-checkbox:checked').length === 0;
+    });
+  });
+}
+
+document.getElementById('langFilter').addEventListener('change', renderCases);
 
 function appendLog(text) {
   var log = document.getElementById('outputLog');
@@ -114,5 +131,10 @@ document.getElementById('stopBtn').addEventListener('click', function() {
 
 // 页面加载后自动列出用例
 loadCases();
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 </script>
 <%- include('partials/footer') %>

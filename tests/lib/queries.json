@@ -1,0 +1,85 @@
+{
+  "baseUrl": "https://website-dev.unitpulse.ai",
+
+  "timeout": {
+    "pageLoad": 20000,
+    "submitDefault": 10,
+    "pageSettle": 2000,
+    "dropdown": 400
+  },
+
+  "viewport": { "width": 1440, "height": 900 },
+
+  "browser": {
+    "headless": false,
+    "channel": "chrome",
+    "args": ["--disable-blink-features=AutomationControlled", "--no-sandbox"],
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36",
+    "locale": "en-US"
+  },
+
+  "screenshot": {
+    "fullPage": true,
+    "onPhaseStart": false,
+    "onPhaseEnd": true,
+    "onFailure": true
+  },
+
+  "phase2": [
+    { "id": "TEST-001a", "q": "5634A Brooklyn Ave NE, Seattle, WA 98105 (The Grey House), show me the video", "w": 12 },
+    { "id": "TEST-001b", "q": "Can you also send me the photos of this property?", "w": 10 },
+    { "id": "TEST-002a", "q": "2071", "w": 10 },
+    { "id": "TEST-002b", "q": "2701 Durant Avenue, Berkeley, CA 94704", "w": 10 },
+    { "id": "TEST-003a", "q": "Find apartments in Miami", "w": 10 },
+    { "id": "TEST-003b", "q": "Try a different city", "w": 10 },
+    { "id": "TEST-004a", "q": "Berkeley, CA near good schools, budget 1400-2700", "w": 10 },
+    { "id": "TEST-004b", "q": "1,400-2,700 dollars, 2 bedrooms, Parking, in Berkeley, CA near good schools", "w": 10 },
+    { "id": "EXTRA-001", "q": "What is available near UC Berkeley campus?", "w": 10 },
+    { "id": "EXTRA-002", "q": "Does 2315 College Avenue have a video tour?", "w": 10 }
+  ],
+
+  "phase3": [
+    { "name": "Berkeley", "q": "2 bedroom apartments in Berkeley under $3000" },
+    { "name": "Seattle", "q": "Studio and 1-bedroom apartments in Seattle under $2500" },
+    { "name": "LosAngeles", "q": "apartments with pool and gym", "useSelector": "Los Angeles" }
+  ],
+
+  "phase4": [
+    { "id": "TC-005", "q": "What does $2,000 get me in Berkeley compared to Seattle?" },
+    { "id": "TC-006", "q": "Show me apartments with in-unit washer and dryer only" },
+    { "id": "TC-007", "q": "I need to move in within the next 2 weeks, what is available?" },
+    { "id": "TC-008", "q": "I have a cat and a small dog. What are the pet fees and restrictions?" },
+    { "id": "TC-009", "q": "Which neighborhoods in Berkeley are safest with good walkability?" },
+    { "id": "TC-010", "q": "How much are utilities? What is the real total monthly cost for a 1-bedroom?" },
+    { "id": "TC-011", "q": "Find apartments with short-term or month-to-month leases in Berkeley" },
+    { "id": "TC-012", "q": "What is the cheapest 1-bedroom apartment available right now?" }
+  ],
+
+  "phase5": [
+    { "id": "DETAIL-001", "q": "I want to know the availability for 2315 College Avenue in Berkeley. What rooms can I rent?" },
+    { "id": "DETAIL-002", "q": "Tell me everything about 2701 Durant Avenue — available units, prices, floor plans, and move-in dates" },
+    { "id": "DETAIL-003", "q": "What is the cheapest available unit at 2124 Parker Street?" },
+    { "id": "DETAIL-004", "q": "How many units are currently available at The Grey House on Brooklyn Ave in Seattle?" },
+    { "id": "DETAIL-005", "q": "Show me all studio units available at Nari Koreatown in Los Angeles" },
+    { "id": "DETAIL-006", "q": "What is the soonest move-in date for any 1-bedroom in Berkeley?" },
+    { "id": "DETAIL-007", "q": "I am interested in 2715 Dwight Way. Show me the 2-bedroom units available and their individual prices." },
+    { "id": "DETAIL-008", "q": "Compare availability: 2315 College vs 2618 College — which one has more units ready to move in August?" }
+  ],
+
+  "composerElements": [
+    "composer-nl", "composer-search", "composer-location",
+    "composer-beds", "composer-budget", "composer-movein"
+  ],
+
+  "composerDropdowns": [
+    ["composer-location", "cities"],
+    ["composer-beds", "beds"],
+    ["composer-budget", "budgets"],
+    ["composer-movein", "movein"]
+  ],
+
+  "routeProbe": [
+    "/listings", "/search", "/about", "/pricing", "/contact",
+    "/faq", "/login", "/signup", "/register"
+  ]
+}

@@ -1,0 +1,218 @@
+<%- include('partials/header', { title: 'AI Chat 报告' }) %>
+<div class="container">
+  <h1>🤖 AI Chat 查询报告</h1>
+
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card"><div class="stat-label">总查询数</div><div class="stat-value" id="statTotal">-</div></div>
+    <div class="stat-card stat-pass"><div class="stat-label">✅ 符合预期</div><div class="stat-value" id="statPassed">-</div></div>
+    <div class="stat-card stat-fail"><div class="stat-label">❌ 偏差</div><div class="stat-value" id="statFailed">-</div></div>
+    <div class="stat-card"><div class="stat-label">通过率</div><div class="stat-value" id="statRate">-</div></div>
+  </div>
+
+  <!-- 协议维度统计 -->
+  <div class="card" id="protocolCard" style="display:none">
+    <h2>按协议类型统计</h2>
+    <div id="protocolStats" class="component-stats"></div>
+  </div>
+
+  <!-- 阶段维度统计 -->
+  <div class="card" id="phaseCard" style="display:none">
+    <h2>按阶段统计</h2>
+    <div id="phaseStats" class="component-stats"></div>
+  </div>
+
+  <!-- 查询详细列表 -->
+  <div class="card">
+    <div class="toolbar">
+      <h2 style="margin:0">查询明细</h2>
+      <select id="filterProtocol" style="margin-left:auto; padding:6px 10px; border-radius:6px; border:1px solid #ddd;">
+        <option value="">全部协议</option>
+        <option value="search">搜索 (SEARCH)</option>
+        <option value="detail">详情 (DETAIL)</option>
+        <option value="knowledge">知识 (KNOWLEDGE)</option>
+        <option value="action">流程 (ACTION)</option>
+        <option value="compare">对比 (COMPARE)</option>
+        <option value="followup">反问 (FOLLOW_UP)</option>
+      </select>
+      <select id="filterVerdict" style="padding:6px 10px; border-radius:6px; border:1px solid #ddd;">
+        <option value="">全部判定</option>
+        <option value="1">✅ 符合预期</option>
+        <option value="0">❌ 偏差</option>
+      </select>
+    </div>
+    <div id="resultsList">
+      <p class="loading">加载中...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+var allResults = [];
+
+function loadAIChatReport() {
+  Promise.all([
+    fetch('/api/aichat/stats').then(function(r) { return r.json(); }),
+    fetch('/api/aichat/results').then(function(r) { return r.json(); }),
+  ]).then(function(results) {
+    var stats = results[0];
+    allResults = results[1];
+
+    // 摘要统计
+    document.getElementById('statTotal').textContent = stats.total;
+    document.getElementById('statPassed').textContent = stats.passed;
+    document.getElementById('statFailed').textContent = stats.failed;
+    var rate = stats.total > 0 ? (stats.passed / stats.total * 100).toFixed(1) + '%' : '-';
+    var rateEl = document.getElementById('statRate');
+    rateEl.textContent = rate;
+    if (stats.total > 0 && stats.failed === 0) rateEl.style.color = '#22c55e';
+
+    // 协议维度
+    if (stats.byProtocol && stats.byProtocol.length > 0) {
+      document.getElementById('protocolCard').style.display = '';
+      var pHtml = '';
+      stats.byProtocol.forEach(function(p) {
+        var pct = p.total > 0 ? (p.passed / p.total * 100).toFixed(0) : 0;
+        var barColor = p.failed === 0 ? '#22c55e' : (p.failed > p.passed ? '#ef4444' : '#f59e0b');
+        pHtml += '<div class="comp-row">' +
+          '<span class="comp-label">' + escHtml(p.expected_protocol) + '</span>' +
+          '<span class="comp-nums">' + p.passed + '/' + p.total + '</span>' +
+          '<div class="comp-bar-bg"><div class="comp-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+          '</div>';
+      });
+      document.getElementById('protocolStats').innerHTML = pHtml;
+    }
+
+    // 阶段维度
+    if (stats.byPhase && stats.byPhase.length > 0) {
+      document.getElementById('phaseCard').style.display = '';
+      var sHtml = '';
+      stats.byPhase.forEach(function(p) {
+        var pct = p.total > 0 ? (p.passed / p.total * 100).toFixed(0) : 0;
+        var barColor = p.failed === 0 ? '#22c55e' : (p.failed > p.passed ? '#ef4444' : '#f59e0b');
+        sHtml += '<div class="comp-row">' +
+          '<span class="comp-label">' + escHtml(p.phase) + '</span>' +
+          '<span class="comp-nums">' + p.passed + '/' + p.total + '</span>' +
+          '<div class="comp-bar-bg"><div class="comp-bar-fill" style="width:' + pct + '%;background:' + barColor + '"></div></div>' +
+          '</div>';
+      });
+      document.getElementById('phaseStats').innerHTML = sHtml;
+    }
+
+    renderResults();
+  });
+}
+
+function renderResults() {
+  var protocolFilter = document.getElementById('filterProtocol').value;
+  var verdictFilter = document.getElementById('filterVerdict').value;
+
+  var filtered = allResults;
+  if (protocolFilter) {
+    filtered = filtered.filter(function(r) { return r.expected_protocol === protocolFilter; });
+  }
+  if (verdictFilter) {
+    filtered = filtered.filter(function(r) { return r.verdict_pass === parseInt(verdictFilter); });
+  }
+
+  var container = document.getElementById('resultsList');
+  if (filtered.length === 0) {
+    container.innerHTML = '<p class="empty">暂无匹配的查询记录</p>';
+    return;
+  }
+
+  // 按 run_id 分组
+  var runs = {};
+  filtered.forEach(function(r) {
+    var key = 'Run #' + r.run_id + ' — ' + new Date(r.run_started_at).toLocaleString() + ' (' + r.run_status + ')';
+    if (!runs[key]) runs[key] = [];
+    runs[key].push(r);
+  });
+
+  var html = '';
+  Object.keys(runs).reverse().forEach(function(runLabel) {
+    var queries = runs[runLabel];
+    var runPassed = queries.filter(function(q) { return q.verdict_pass === 1; }).length;
+    var runFailed = queries.filter(function(q) { return q.verdict_pass === 0; }).length;
+
+    html += '<div class="run-group">';
+    html += '<div class="run-header">' +
+      escHtml(runLabel) + ' | 查询: ' + queries.length + ' | ✅ ' + runPassed + ' ❌ ' + runFailed +
+      '</div>';
+
+    queries.forEach(function(q) {
+      var cardClass = q.verdict_pass ? 'query-card query-pass' : 'query-card query-fail';
+      var verdictIcon = q.verdict_pass ? '✅' : '❌';
+      var protocolBadge = '<span class="protocol-badge protocol-' + q.expected_protocol + '">' +
+        escHtml(q.expected_protocol) + '</span>';
+
+      html += '<div class="' + cardClass + '">';
+      html += '<div class="query-header">';
+      html += '<span class="query-id">' + escHtml(q.query_id) + '</span>';
+      html += protocolBadge;
+      html += '<span class="query-verdict">' + verdictIcon + ' ' + (q.verdict_pass ? '符合预期' : '偏差: ' + escHtml(q.verdict_why || '')) + '</span>';
+      html += '<span class="query-duration">' + (q.duration_ms ? (q.duration_ms / 1000).toFixed(1) + 's' : '-') + '</span>';
+      html += '</div>';
+
+      // 用户查询
+      html += '<div class="query-section">';
+      html += '<div class="section-label">📝 用户查询</div>';
+      html += '<div class="query-text">' + escHtml(q.query_text) + '</div>';
+      html += '</div>';
+
+      // 预期
+      html += '<div class="query-section">';
+      html += '<div class="section-label">🎯 预期回复</div>';
+      html += '<div class="expected-text">协议: <strong>' + escHtml(q.expected_protocol) + '</strong>';
+      if (q.verdict_protocol_label) html += ' (' + escHtml(q.verdict_protocol_label) + ')';
+      if (q.expected_desc) html += '<br>描述: ' + escHtml(q.expected_desc);
+      html += '</div>';
+      html += '</div>';
+
+      // 实际回复
+      html += '<div class="query-section">';
+      html += '<div class="section-label">💬 实际回复 <span class="text-muted">(共 ' + q.actual_len + ' 字符，显示前 500)</span></div>';
+      html += '<div class="actual-text">' + escHtml(q.actual_response || '(空)') + '</div>';
+      html += '</div>';
+
+      // 判定
+      html += '<div class="query-section">';
+      html += '<div class="section-label">⚖️ 自动判定</div>';
+      html += '<div class="verdict-detail">';
+      html += '结果: <strong class="' + (q.verdict_pass ? 'text-pass' : 'text-fail') + '">' + verdictIcon + ' ' + (q.verdict_pass ? 'PASS' : 'FAIL') + '</strong>';
+      if (q.verdict_why) html += ' — ' + escHtml(q.verdict_why);
+      if (q.error_message) html += '<br>异常: ' + escHtml(q.error_message);
+      if (q.verdict_hints) {
+        try {
+          var hints = typeof q.verdict_hints === 'string' ? JSON.parse(q.verdict_hints) : q.verdict_hints;
+          var hintStr = JSON.stringify(hints);
+          if (hintStr !== '{}') html += '<br>特征: <code>' + escHtml(hintStr) + '</code>';
+        } catch(_) {}
+      }
+      html += '</div>';
+      html += '</div>';
+
+      // 阶段信息
+      if (q.phase) {
+        html += '<div class="query-meta">📂 ' + escHtml(q.phase) + ' | 🕐 ' + new Date(q.timestamp).toLocaleTimeString() + '</div>';
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+document.getElementById('filterProtocol').addEventListener('change', renderResults);
+document.getElementById('filterVerdict').addEventListener('change', renderResults);
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+loadAIChatReport();
+</script>
+<%- include('partials/footer') %>

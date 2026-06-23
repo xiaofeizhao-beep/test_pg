@@ -361,3 +361,198 @@ h2 {
 
 .log-line { padding: 1px 0; word-break: break-all; }
 .log-error { color: #f87171; }
+
+/* ============================================================
+   AI Chat 报告
+   ============================================================ */
+
+/* 协议类型徽章 */
+.protocol-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.protocol-search   { background: #dbeafe; color: #1e40af; }
+.protocol-detail   { background: #d1fae5; color: #065f46; }
+.protocol-knowledge{ background: #fef3c7; color: #92400e; }
+.protocol-action   { background: #fce7f3; color: #9d174d; }
+.protocol-compare  { background: #e0e7ff; color: #3730a3; }
+.protocol-followup { background: #ede9fe; color: #5b21b6; }
+
+/* 运行分组 */
+.run-group { margin-bottom: 24px; }
+
+.run-header {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 8px;
+}
+
+/* 查询卡片 */
+.query-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.query-card.query-pass { border-left: 4px solid #22c55e; }
+.query-card.query-fail { border-left: 4px solid #ef4444; }
+
+.query-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.query-id {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a2e;
+  min-width: 80px;
+}
+
+.query-verdict {
+  font-size: 13px;
+  color: #555;
+  flex: 1;
+}
+
+.query-duration {
+  font-size: 12px;
+  color: #999;
+  white-space: nowrap;
+}
+
+.query-section {
+  margin-bottom: 10px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.query-text {
+  font-size: 14px;
+  color: #1a1a2e;
+  background: #f0f4ff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-style: italic;
+}
+
+.expected-text {
+  font-size: 13px;
+  color: #555;
+  background: #f0fdf4;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.actual-text {
+  font-size: 13px;
+  color: #333;
+  background: #f9fafb;
+  padding: 10px 12px;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid #eee;
+}
+
+.verdict-detail {
+  font-size: 13px;
+  color: #555;
+  background: #fffbeb;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.verdict-detail code {
+  font-size: 12px;
+  background: #f3f4f6;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.query-meta {
+  font-size: 11px;
+  color: #aaa;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.text-muted { color: #999; font-weight: 400; }
+
+/* 组件/协议统计行 */
+.component-stats { font-size: 13px; }
+
+.comp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.comp-label {
+  min-width: 120px;
+  font-weight: 600;
+  color: #333;
+}
+
+.comp-nums {
+  min-width: 60px;
+  font-size: 12px;
+  color: #888;
+  text-align: right;
+}
+
+.comp-bar-bg {
+  flex: 1;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.comp-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+/* ============================================================
+   语言徽章 (JS vs Python)
+   ============================================================ */
+
+.lang-badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.js-badge { background: #fef3c7; color: #92400e; }
+.py-badge { background: #dbeafe; color: #1e40af; }

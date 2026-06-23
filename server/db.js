@@ -54,6 +54,26 @@ db.exec(`
     step_name TEXT,
     taken_at TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS aichat_query_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id INTEGER NOT NULL REFERENCES test_runs(id),
+    query_id TEXT NOT NULL,
+    phase TEXT,
+    query_text TEXT NOT NULL,
+    expected_protocol TEXT NOT NULL,
+    expected_desc TEXT,
+    actual_response TEXT,
+    actual_len INTEGER DEFAULT 0,
+    verdict_pass INTEGER NOT NULL DEFAULT 0,
+    verdict_protocol TEXT,
+    verdict_protocol_label TEXT,
+    verdict_why TEXT,
+    verdict_hints JSON,
+    duration_ms INTEGER DEFAULT 0,
+    error_message TEXT,
+    timestamp TEXT NOT NULL
+  );
 `);
 
 function createRun() {
@@ -169,9 +189,81 @@ function getOverallStats() {
   };
 }
 
+// ================================================================
+// AI Chat 查询结果
+// ================================================================
+
+function insertAIChatResult(runId, entry) {
+  const stmt = db.prepare(`
+    INSERT INTO aichat_query_results
+      (run_id, query_id, phase, query_text, expected_protocol, expected_desc,
+       actual_response, actual_len, verdict_pass, verdict_protocol,
+       verdict_protocol_label, verdict_why, verdict_hints, duration_ms,
+       error_message, timestamp)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  stmt.run(
+    runId,
+    entry.queryId || '?',
+    entry.phase || '',
+    entry.query || '',
+    entry.expectedProtocol || '',
+    entry.expectedDesc || '',
+    entry.actualResponse || '',
+    entry.actualLen || 0,
+    entry.verdict?.pass ? 1 : 0,
+    entry.verdict?.protocol || '',
+    entry.verdict?.protocolLabel || '',
+    entry.verdict?.why || '',
+    JSON.stringify(entry.verdict?.hints || {}),
+    entry.durationMs || 0,
+    entry.error || null,
+    entry.timestamp || new Date().toISOString()
+  );
+}
+
+function getAIChatResults(runId) {
+  return db.prepare('SELECT * FROM aichat_query_results WHERE run_id = ? ORDER BY id ASC').all(runId);
+}
+
+function getLatestAIChatResults(limit = 200) {
+  return db.prepare(`
+    SELECT a.*, r.started_at as run_started_at, r.status as run_status
+    FROM aichat_query_results a
+    JOIN test_runs r ON a.run_id = r.id
+    ORDER BY a.id DESC
+    LIMIT ?
+  `).all(limit);
+}
+
+function getAIChatStats() {
+  const total = db.prepare('SELECT COUNT(*) as count FROM aichat_query_results').get();
+  const passed = db.prepare('SELECT COUNT(*) as count FROM aichat_query_results WHERE verdict_pass = 1').get();
+  const failed = db.prepare('SELECT COUNT(*) as count FROM aichat_query_results WHERE verdict_pass = 0').get();
+  const byProtocol = db.prepare(`
+    SELECT expected_protocol, COUNT(*) as total,
+      SUM(CASE WHEN verdict_pass = 1 THEN 1 ELSE 0 END) as passed,
+      SUM(CASE WHEN verdict_pass = 0 THEN 1 ELSE 0 END) as failed
+    FROM aichat_query_results
+    GROUP BY expected_protocol
+    ORDER BY total DESC
+  `).all();
+  const byPhase = db.prepare(`
+    SELECT phase, COUNT(*) as total,
+      SUM(CASE WHEN verdict_pass = 1 THEN 1 ELSE 0 END) as passed,
+      SUM(CASE WHEN verdict_pass = 0 THEN 1 ELSE 0 END) as failed
+    FROM aichat_query_results
+    GROUP BY phase
+    ORDER BY total DESC
+  `).all();
+
+  return { total: total.count, passed: passed.count, failed: failed.count, byProtocol, byPhase };
+}
+
 // 清理旧测试结果并重建库（用于表结构调整后重置）
 function resetDatabase() {
   db.exec(`
+    DROP TABLE IF EXISTS aichat_query_results;
     DROP TABLE IF EXISTS test_screenshots;
     DROP TABLE IF EXISTS test_logs;
     DROP TABLE IF EXISTS test_results;
@@ -217,6 +309,25 @@ function resetDatabase() {
       step_name TEXT,
       taken_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS aichat_query_results (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      run_id INTEGER NOT NULL REFERENCES test_runs(id),
+      query_id TEXT NOT NULL,
+      phase TEXT,
+      query_text TEXT NOT NULL,
+      expected_protocol TEXT NOT NULL,
+      expected_desc TEXT,
+      actual_response TEXT,
+      actual_len INTEGER DEFAULT 0,
+      verdict_pass INTEGER NOT NULL DEFAULT 0,
+      verdict_protocol TEXT,
+      verdict_protocol_label TEXT,
+      verdict_why TEXT,
+      verdict_hints JSON,
+      duration_ms INTEGER DEFAULT 0,
+      error_message TEXT,
+      timestamp TEXT NOT NULL
+    );
   `);
 }
 
@@ -241,6 +352,7 @@ function deleteRun(runId) {
 
   // 2. 删除数据库记录（外键顺序：先删子表，再删主表）
   const del = db.transaction(() => {
+    db.prepare('DELETE FROM aichat_query_results WHERE run_id = ?').run(runId);
     db.prepare('DELETE FROM test_screenshots WHERE run_id = ?').run(runId);
     db.prepare('DELETE FROM test_logs WHERE run_id = ?').run(runId);
     db.prepare('DELETE FROM test_results WHERE run_id = ?').run(runId);
@@ -315,5 +427,9 @@ module.exports = {
   getRunScreenshots,
   getRecentRuns,
   getOverallStats,
+  insertAIChatResult,
+  getAIChatResults,
+  getLatestAIChatResults,
+  getAIChatStats,
   resetDatabase,
 };

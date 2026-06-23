@@ -17,10 +17,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 const dashboardRoutes = require('./routes/dashboard');
 const caseRoutes = require('./routes/cases');
 const historyRoutes = require('./routes/history');
+const aichatRoutes = require('./routes/aichat');
+const codegenRoutes = require('./routes/codegen');
 
 app.use('/api', dashboardRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/aichat', aichatRoutes);
+app.use('/api/codegen', codegenRoutes);
 
 // ================================================================
 // 页面路由
@@ -38,6 +42,14 @@ app.get('/cases', (req, res) => {
 
 app.get('/history', (req, res) => {
   res.render('history');
+});
+
+app.get('/aichat', (req, res) => {
+  res.render('aichat');
+});
+
+app.get('/codegen', (req, res) => {
+  res.render('codegen');
 });
 
 // ================================================================
