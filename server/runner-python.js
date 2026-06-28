@@ -25,15 +25,38 @@ function findPython() {
     try {
       const { execSync } = require('child_process');
       execSync(`"${cmd}" --version`, { stdio: 'ignore' });
+      console.log(`🐍 检测到 Python: ${cmd}`);
       return cmd;
     } catch (_) {
       // 继续尝试下一个
     }
   }
+  console.warn('⚠️ 未检测到 Python，使用默认 python 命令');
   return 'python'; // 兜底
 }
 
 const PYTHON_CMD = findPython();
+
+// 构建子进程环境变量 — 确保 Python 路径在 PATH 中
+function buildEnv() {
+  const env = { ...process.env };
+  const pyDir = path.dirname(PYTHON_CMD);
+  const scriptsDir = path.join(pyDir, 'Scripts');
+  const pathDirs = [pyDir, scriptsDir];
+  const existingPath = env.PATH || env.Path || '';
+  // 只添加尚未在 PATH 中的目录
+  const pathParts = existingPath.split(path.delimiter).filter(Boolean);
+  for (const d of pathDirs) {
+    if (!pathParts.some(p => p.toLowerCase() === d.toLowerCase())) {
+      pathParts.unshift(d);
+    }
+  }
+  env.PATH = pathParts.join(path.delimiter);
+  env.Path = env.PATH; // Windows 同时需要 Path
+  return env;
+}
+
+const CHILD_ENV = buildEnv();
 
 /**
  * 启动 pytest 测试
@@ -42,12 +65,14 @@ function startPytestRun(testFiles, language = 'py') {
   const runId = db.createRun();
 
   // 构建 pytest 命令（使用 python -m pytest 确保路径正确）
-  const fileArgs = testFiles.map(f => `tests/pytest/cases/${f}`).join(' ');
-  const command = `"${PYTHON_CMD}" -m pytest ${fileArgs} -v --tb=short`;
-  const child = spawn(command, [], {
+  const fileArgs = testFiles.map(f => `tests/pytest/cases/${f}`);
+  console.log('🔧 PYTHON_CMD:', PYTHON_CMD);
+  console.log('🔧 测试文件:', fileArgs);
+  console.log('🔧 PATH:', (CHILD_ENV.PATH || '').substring(0, 200));
+  const child = spawn(PYTHON_CMD, ['-m', 'pytest', ...fileArgs, '-v', '--tb=short'], {
     cwd: PROJECT_ROOT,
-    shell: true,
-    env: { ...process.env },
+    shell: false,
+    env: CHILD_ENV,
   });
 
   const runCtx = {
