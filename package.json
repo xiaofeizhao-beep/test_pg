@@ -1,32 +1,20 @@
 {
   "name": "unitpulse-portal-tests",
   "version": "1.0.0",
-  "description": "Unitpulse Portal Playwright Test 自动化测试项目",
+  "description": "Unitpulse Portal pytest 自动化测试项目",
   "private": true,
   "scripts": {
-    "test": "playwright test",
-    "test:headed": "playwright test --headed",
-    "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug",
-    "test:report": "playwright show-report tests/report",
-    "test:login": "playwright test tests/cases/login/",
-    "test:chrome": "playwright test --project=chromium",
-    "test:firefox": "playwright test --project=firefox",
-    "test:webkit": "playwright test --project=webkit",
-    "clean": "node -e \"var fs=require('fs'),p=require('path'),d=p.join('tests','report');['screenshots','artifacts','html'].forEach(function(n){var dp=p.join(d,n);if(fs.existsSync(dp))fs.readdirSync(dp).forEach(function(f){fs.rmSync(p.join(dp,f),{recursive:true,force:true})})});['results.json'].forEach(function(f){var fp=p.join(d,f);if(fs.existsSync(fp))fs.unlinkSync(fp)});console.log('🧹 日志和产物已清除')\"",
     "server": "node server/app.js",
     "test:pytest": "pytest tests/pytest/cases/ -v",
     "test:pytest:headed": "pytest tests/pytest/cases/ -v --headed",
     "test:pytest:aichat": "pytest tests/pytest/cases/aichat/ -v",
     "test:pytest:portal": "pytest tests/pytest/cases/ -v -m portal",
-    "test:all": "npx playwright test tests/cases/ --project=chromium && pytest tests/pytest/cases/ -v"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.45.0"
+    "clean": "node -e \"var fs=require('fs'),p=require('path'),d=p.join('tests','report');['screenshots','artifacts','html'].forEach(function(n){var dp=p.join(d,n);if(fs.existsSync(dp))fs.readdirSync(dp).forEach(function(f){fs.rmSync(p.join(dp,f),{recursive:true,force:true})})});['results.json','pytest_results.json'].forEach(function(f){var fp=p.join(d,f);if(fs.existsSync(fp))fs.unlinkSync(fp)});console.log('🧹 日志和产物已清除')\""
   },
   "dependencies": {
-    "better-sqlite3": "^12.11.1",
     "ejs": "^6.0.1",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "playwright": "^1.61.1",
+    "sql.js": "^1.14.1"
   }
 }

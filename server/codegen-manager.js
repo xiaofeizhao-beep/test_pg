@@ -32,6 +32,7 @@ function startSession(url, outputPath) {
   const child = spawn('npx', [
     'playwright', 'codegen',
     '--target', 'python-pytest',
+    '--channel', 'chrome',
     '-o', outFile,
     url,
   ], {

@@ -3,9 +3,8 @@
   <h1>测试用例</h1>
 
   <div class="toolbar">
-    <select id="langFilter" style="padding:6px 10px;border-radius:6px;border:1px solid #ddd;">
+    <select id="langFilter" style="padding:6px 10px;border-radius:6px;border:1px solid #ddd;display:none;">
       <option value="">全部语言</option>
-      <option value="js">JavaScript</option>
       <option value="py">Python</option>
     </select>
     <button class="btn btn-primary" id="runBtn" disabled>运行选中</button>
@@ -53,7 +52,7 @@ function renderCases() {
   Object.keys(modules).sort().forEach(function(mod) {
     html += '<div class="module-group"><h3 class="module-title">' + escHtml(mod) + '</h3>';
     modules[mod].forEach(function(f) {
-      var badge = f.language === 'py' ? ' <span class="lang-badge py-badge">Python</span>' : ' <span class="lang-badge js-badge">JS</span>';
+      var badge = ' <span class="lang-badge py-badge">Python</span>';
       html += '<label class="case-item">' +
         '<input type="checkbox" class="case-checkbox" value="' + escHtml(f.filePath) + '" data-lang="' + f.language + '"> ' +
         '<span>' + escHtml(f.fileName) + badge + '</span></label>';
@@ -69,7 +68,7 @@ function renderCases() {
   });
 }
 
-document.getElementById('langFilter').addEventListener('change', renderCases);
+// 默认只显示 Python
 
 function appendLog(text) {
   var log = document.getElementById('outputLog');

@@ -1,6 +1,27 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const db = require('./db');
+
+// ================================================================
+// 自动加载 .env 文件（Node.js 原生 env-file 方式）
+// ================================================================
+const envPath = path.resolve(__dirname, '..', '.env');
+if (fs.existsSync(envPath)) {
+  const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    const val = trimmed.slice(eqIdx + 1).trim();
+    if (key && !process.env[key]) {
+      process.env[key] = val;
+    }
+  }
+  console.log('📋 已加载 .env 配置');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -79,6 +100,11 @@ app.get('/screenshot', (req, res) => {
 // ================================================================
 // 启动
 // ================================================================
-app.listen(PORT, () => {
-  console.log(`🚀 测试可视化平台已启动: http://localhost:${PORT}`);
+db.ensureInit().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 测试可视化平台已启动: http://localhost:${PORT}`);
+  });
+}).catch(err => {
+  console.error('数据库初始化失败:', err);
+  process.exit(1);
 });

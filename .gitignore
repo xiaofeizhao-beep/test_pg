@@ -28,6 +28,11 @@ auth_state.json
 
 # Server database
 server/data/
+
+# Agent / IDE config
+.agents/
+.reasonix/
+reasonix.toml
 .claude/
 .vscode/
 .idea/
