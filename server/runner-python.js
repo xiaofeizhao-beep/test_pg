@@ -16,9 +16,9 @@ function findPython() {
   // 尝试常见的 Python 安装路径
   const candidates = [
     'python',                          // PATH 中的 python
-    path.join('C:', 'Python314', 'python.exe'),
-    path.join('C:', 'Python313', 'python.exe'),
     path.join('C:', 'Python312', 'python.exe'),
+    path.join('C:', 'Python313', 'python.exe'),
+    path.join('C:', 'Python314', 'python.exe'),
     path.join('C:', 'Python311', 'python.exe'),
   ];
   for (const cmd of candidates) {

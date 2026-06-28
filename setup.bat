@@ -72,7 +72,7 @@ set PYTHON_CMD=python
 where python >nul 2>nul
 if %ERRORLEVEL% NEQ 0 (
     :: 尝试常见路径
-    set PYTHON_PATHS=C:\Python314;C:\Python313;C:\Python312
+    set PYTHON_PATHS=C:\Python312;C:\Python313;C:\Python314
     for %%p in (%PYTHON_PATHS%) do (
         if exist "%%p\python.exe" (
             set "PATH=%%p;%%p\Scripts;%PATH%"

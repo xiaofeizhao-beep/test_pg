@@ -104,7 +104,7 @@ where python >nul 2>nul
 if %ERRORLEVEL% EQU 0 set PYTHON_FOUND=1
 
 if %PYTHON_FOUND% EQU 0 (
-    for %%p in (C:\Python314 C:\Python313 C:\Python312) do (
+    for %%p in (C:\Python312 C:\Python313 C:\Python314) do (
         if exist "%%p\python.exe" (
             set "PATH=%%p;%%p\Scripts;%PATH%"
             set PYTHON_FOUND=1
