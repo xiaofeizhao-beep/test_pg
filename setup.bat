@@ -68,35 +68,64 @@ if not exist ".env" (
 :: ============================================================
 echo.
 echo ─── 检查 Python 环境 ───
+set PYTHON_CMD=python
 where python >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    :: 尝试常见路径
+    set PYTHON_PATHS=C:\Python314;C:\Python313;C:\Python312
+    for %%p in (%PYTHON_PATHS%) do (
+        if exist "%%p\python.exe" (
+            set "PATH=%%p;%%p\Scripts;%PATH%"
+            set PYTHON_CMD=%%p\python.exe
+            goto :found_python
+        )
+    )
+    goto :no_python
+)
+
+:found_python
+%PYTHON_CMD% --version
+echo [✓] Python 已就绪
+
+:: 检查 pytest
+%PYTHON_CMD% -m pytest --version >nul 2>nul
 if %ERRORLEVEL% EQU 0 (
-    python --version
-    echo [✓] Python 已就绪
-    
-    :: 检查 pytest
-    where pytest >nul 2>nul
+    echo [✓] pytest 已安装
+) else (
+    echo [信息] 正在安装 pytest...
+    %PYTHON_CMD% -m pip install pytest pytest-playwright -q
     if %ERRORLEVEL% EQU 0 (
-        echo [✓] pytest 已安装
+        echo [✓] pytest 安装完成
     ) else (
-        echo [警告] 未检测到 pytest
-        echo 运行以下命令安装:
+        echo [警告] pytest 安装失败，请手动安装:
         echo   pip install pytest pytest-playwright
     )
-
-    :: 检查 playwright (Python)
-    python -c "import playwright" 2>nul
-    if %ERRORLEVEL% EQU 0 (
-        echo [✓] playwright (Python) 已安装
-    ) else (
-        echo [警告] 未安装 playwright Python 库
-        echo 运行以下命令安装:
-        echo   pip install playwright ^&^& python -m playwright install chromium
-    )
-) else (
-    echo [警告] 未检测到 Python
-    echo 运行 pytest 测试需要 Python 3.8+
-    echo 下载: https://www.python.org/downloads/
 )
+
+:: 检查 playwright (Python)
+%PYTHON_CMD% -c "import playwright" 2>nul
+if %ERRORLEVEL% EQU 0 (
+    echo [✓] playwright (Python) 已安装
+) else (
+    echo [信息] 正在安装 playwright Python 库...
+    %PYTHON_CMD% -m pip install playwright -q
+    if %ERRORLEVEL% EQU 0 (
+        %PYTHON_CMD% -m playwright install chromium --only-shell -q
+        echo [✓] playwright 安装完成
+    ) else (
+        echo [警告] playwright 安装失败
+    )
+)
+goto :check_browser
+
+:no_python
+echo [警告] 未检测到 Python
+echo 运行 pytest 测试需要 Python 3.8+
+echo 下载: https://www.python.org/downloads/
+echo 或已安装但在以下路径，可手动加入 PATH:
+echo   C:\Python314
+echo   C:\Python313
+echo   C:\Python312
 
 :: ============================================================
 :: 5. 检查 Playwright 浏览器 (用于 codegen)

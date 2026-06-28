@@ -99,9 +99,23 @@ echo [✓] 依赖安装完成
 
 echo.
 echo ─── 检查 Python ───
+set PYTHON_FOUND=0
 where python >nul 2>nul
-if %ERRORLEVEL% EQU 0 (
-    echo [✓] Python 已安装
+if %ERRORLEVEL% EQU 0 set PYTHON_FOUND=1
+
+if %PYTHON_FOUND% EQU 0 (
+    for %%p in (C:\Python314 C:\Python313 C:\Python312) do (
+        if exist "%%p\python.exe" (
+            set "PATH=%%p;%%p\Scripts;%PATH%"
+            set PYTHON_FOUND=1
+            goto :py_done
+        )
+    )
+)
+
+:py_done
+if %PYTHON_FOUND% EQU 1 (
+    for /f "tokens=*" %%v in ('python --version 2^>nul') do echo [✓] %%v
 ) else (
     echo [警告] 未检测到 Python
     echo 运行 pytest 测试需要 Python 环境

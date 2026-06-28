@@ -9,15 +9,41 @@ const AICHAT_RESULTS = path.join(PROJECT_ROOT, 'tests', 'report', 'aichat-result
 
 const runStreams = new Map();
 
+// ================================================================
+// 自动检测 Python 路径
+// ================================================================
+function findPython() {
+  // 尝试常见的 Python 安装路径
+  const candidates = [
+    'python',                          // PATH 中的 python
+    path.join('C:', 'Python314', 'python.exe'),
+    path.join('C:', 'Python313', 'python.exe'),
+    path.join('C:', 'Python312', 'python.exe'),
+    path.join('C:', 'Python311', 'python.exe'),
+  ];
+  for (const cmd of candidates) {
+    try {
+      const { execSync } = require('child_process');
+      execSync(`"${cmd}" --version`, { stdio: 'ignore' });
+      return cmd;
+    } catch (_) {
+      // 继续尝试下一个
+    }
+  }
+  return 'python'; // 兜底
+}
+
+const PYTHON_CMD = findPython();
+
 /**
  * 启动 pytest 测试
  */
 function startPytestRun(testFiles, language = 'py') {
   const runId = db.createRun();
 
-  // 构建 pytest 命令
+  // 构建 pytest 命令（使用 python -m pytest 确保路径正确）
   const fileArgs = testFiles.map(f => `tests/pytest/cases/${f}`).join(' ');
-  const command = `pytest ${fileArgs} -v --tb=short`;
+  const command = `"${PYTHON_CMD}" -m pytest ${fileArgs} -v --tb=short`;
   const child = spawn(command, [], {
     cwd: PROJECT_ROOT,
     shell: true,
