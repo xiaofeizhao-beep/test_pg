@@ -19,6 +19,9 @@ import pytest
 
 # ============================================================================
 # 环境变量加载
+
+# ============================================================================
+# 环境变量加载
 # ============================================================================
 ENV_PATH = Path(__file__).resolve().parents[3] / '.env'
 
@@ -157,8 +160,15 @@ def pytest_runtest_makereport(item, call):
 
             try:
                 import asyncio
-                loop = asyncio.get_event_loop()
-                loop.run_until_complete(page.screenshot(path=filepath, full_page=True))
+                try:
+                    loop = asyncio.get_running_loop()
+                except RuntimeError:
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(page.screenshot(path=filepath, full_page=True))
+                else:
+                    # 已在事件循环中，创建任务
+                    asyncio.ensure_future(page.screenshot(path=filepath, full_page=True))
             except Exception:
                 pass
 
