@@ -66,10 +66,16 @@ function startPytestRun(testFiles, language = 'py') {
 
   // 构建 pytest 命令（使用 python -m pytest 确保路径正确）
   const fileArgs = testFiles.map(f => `tests/pytest/cases/${f}`);
+  const headless = process.env.HEADLESS === 'true';
+  const pytestArgs = ['-m', 'pytest', ...fileArgs, '-v', '--tb=short'];
+  if (!headless) {
+    pytestArgs.push('--headed');
+  }
   console.log('🔧 PYTHON_CMD:', PYTHON_CMD);
   console.log('🔧 测试文件:', fileArgs);
+  console.log('🔧 HEADLESS:', headless ? '是 (无头)' : '否 (有头)');
   console.log('🔧 PATH:', (CHILD_ENV.PATH || '').substring(0, 200));
-  const child = spawn(PYTHON_CMD, ['-m', 'pytest', ...fileArgs, '-v', '--tb=short'], {
+  const child = spawn(PYTHON_CMD, pytestArgs, {
     cwd: PROJECT_ROOT,
     shell: false,
     env: CHILD_ENV,
