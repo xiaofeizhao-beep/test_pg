@@ -67,7 +67,7 @@ function startPytestRun(testFiles, language = 'py') {
   // 构建 pytest 命令（使用 python -m pytest 确保路径正确）
   const fileArgs = testFiles.map(f => `tests/pytest/cases/${f}`);
   const headless = process.env.HEADLESS === 'true';
-  const pytestArgs = ['-m', 'pytest', ...fileArgs, '-v', '--tb=short'];
+  const pytestArgs = ['-m', 'pytest', ...fileArgs, '-v', '--tb=short', '--browser-channel=chrome'];
   if (!headless) {
     pytestArgs.push('--headed');
   }
